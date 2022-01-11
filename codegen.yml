@@ -3,6 +3,7 @@ schema:
   - https://api.thegraph.com/subgraphs/name/ubeswap/ubeswap
   - https://api.thegraph.com/subgraphs/name/ubeswap/celo-blocks
   - https://api.thegraph.com/subgraphs/name/tradegen/tradegen
+  - https://api.thegraph.com/subgraphs/name/tradegen/tradegen-marketplace
 documents: ./src/apollo/queries.ts
 config:
   immutableTypes: true

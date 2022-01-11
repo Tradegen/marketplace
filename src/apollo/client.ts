@@ -29,3 +29,10 @@ export const tradegenClient = new ApolloClient({
   }),
   cache: new InMemoryCache(),
 })
+
+export const marketplaceClient = new ApolloClient({
+  link: new HttpLink({
+    uri: 'https://api.thegraph.com/subgraphs/name/tradegen/tradegen-marketplace',
+  }),
+  cache: new InMemoryCache(),
+})
