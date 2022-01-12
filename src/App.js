@@ -6,7 +6,6 @@ import styled from 'styled-components'
 import { client } from './apollo/client'
 import GoogleAnalyticsReporter from './components/analytics/GoogleAnalyticsReporter'
 import LocalLoader from './components/LocalLoader'
-import PinnedData from './components/PinnedData'
 import SideNav from './components/SideNav'
 import { useLatestBlocks } from './contexts/Application'
 import { useGlobalChartData, useGlobalData } from './contexts/GlobalData'
@@ -25,7 +24,7 @@ const AppWrapper = styled.div`
 `
 const ContentWrapper = styled.div`
   display: grid;
-  grid-template-columns: ${({ open }) => (open ? '220px 1fr 200px' : '220px 1fr 64px')};
+  grid-template-columns: 220px 1fr;
 
   @media screen and (max-width: 1400px) {
     grid-template-columns: 220px 1fr;
@@ -84,9 +83,6 @@ const LayoutWrapper = ({ children, savedOpen, setSavedOpen }) => {
       <ContentWrapper open={savedOpen}>
         <SideNav />
         <Center id="center">{children}</Center>
-        <Right open={savedOpen}>
-          <PinnedData open={savedOpen} setSavedOpen={setSavedOpen} />
-        </Right>
       </ContentWrapper>
     </>
   )
