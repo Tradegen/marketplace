@@ -42,7 +42,7 @@ const Center = styled.div`
   height: 100%;
   z-index: 9999;
   transition: width 0.25s ease;
-  background-color: ${({ theme }) => theme.onlyLight};
+  background-color: rgb(14, 14, 35);
 `
 /**
  * Wrap the component with the header and sidebar pinned tab
@@ -89,7 +89,7 @@ function App() {
                       </LayoutWrapper>
                     )
                   } else {
-                    return <Redirect to="/home" />
+                    return <Redirect to="/dashboard" />
                   }
                 }}
               />
@@ -107,7 +107,7 @@ function App() {
                       </LayoutWrapper>
                     )
                   } else {
-                    return <Redirect to="/home" />
+                    return <Redirect to="/dashboard" />
                   }
                 }}
               />
@@ -123,15 +123,15 @@ function App() {
                       </LayoutWrapper>
                     )
                   } else {
-                    return <Redirect to="/home" />
+                    return <Redirect to="/dashboard" />
                   }
                 }}
               />
 
-              <Route path="/home">
-                <LayoutWrapper savedOpen={savedOpen} setSavedOpen={setSavedOpen}>
+              <Route path="/dashboard">
+                <Center>
                   <GlobalPage />
-                </LayoutWrapper>
+                </Center>
               </Route>
 
               <Route path="/pools">
@@ -152,7 +152,7 @@ function App() {
                 </LayoutWrapper>
               </Route>
 
-              <Redirect to="/home" />
+              <Redirect to="/dashboard" />
             </Switch>
           </BrowserRouter>
         ) : (

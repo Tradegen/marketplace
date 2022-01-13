@@ -17,8 +17,9 @@ const HeaderFrame = styled.div`
   position: relative;
   border-bottom: 1px solid rgba(0, 0, 0, 0.1);
   padding: 1rem;
-  z-index: 2;
+  z-index: 20000;
   background-color: rgb(14, 14, 35);
+  font-weight: 550;
 `
 
 const HeaderRow = styled(RowFixed)`
