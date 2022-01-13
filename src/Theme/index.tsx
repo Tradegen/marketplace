@@ -140,8 +140,7 @@ export const ThemedBackground = styled.div<{ backgroundColor: string; endColor?:
   max-width: 100vw !important;
   height: 200vh;
   mix-blend-mode: color;
-  background: ${({ backgroundColor, endColor = 'rgba(255, 255, 255, 0)' }) =>
-    `radial-gradient(50% 50% at 50% 50%, ${backgroundColor} 0%, ${endColor} 100%)`};
+  
   position: absolute;
   top: 0px;
   left: 0px;
