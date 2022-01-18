@@ -28,8 +28,8 @@ export const GET_BLOCKS = (timestamps: readonly number[]): DocumentNode => {
     return gql(queryString)
   }
 
-export const GLOBAL_DATA_TRADEGEN_LATEST = gql`
-  query GlobalDataTradegenLatest($marketplaceAddress: ID!) {
+export const GLOBAL_DATA_MARKETPLACE_LATEST = gql`
+  query GlobalDataMarketplaceLatest($marketplaceAddress: ID!) {
     marketplaces(where: { id: $marketplaceAddress }) {
       id
       listingCount
@@ -40,8 +40,8 @@ export const GLOBAL_DATA_TRADEGEN_LATEST = gql`
   }
 `
 
-export const GLOBAL_DATA_TRADEGEN = gql`
-  query GlobalDataTradegen($block: Int!, $marketplaceAddress: ID!) {
+export const GLOBAL_DATA_MARKETPLACE = gql`
+  query GlobalDataMarketplace($block: Int!, $marketplaceAddress: ID!) {
     marketplaces(block: { number: $block }, where: { id: $marketplaceAddress }) {
       id
       listingCount
@@ -53,10 +53,12 @@ export const GLOBAL_DATA_TRADEGEN = gql`
 `
 
 const ListingFields = gql`
-  fragment ListingFields on Pool {
+  fragment ListingFields on Listing {
     id
     exists
-    seller
+    seller {
+      id
+    }
     assetAddress
     tokenClass
     numberOfTokens
@@ -135,7 +137,7 @@ export const GLOBAL_TXNS_TRADEGEN = gql`
         numberOfTokens
         tokenPrice
       }
-      purchases {
+      purchase {
         id
         timestamp
         buyer
@@ -181,7 +183,9 @@ export const ALL_LISTINGS = gql`
       tokenClass
       tokenPrice
       numberOfTokens
-      seller
+      seller {
+        id
+      }
     }
   }
 `
@@ -213,7 +217,9 @@ export const USER_LISTINGS_TRADEGEN = gql`
   query UserListings($user: String!) {
     listings(where: { seller: $user }) {
       exists
-      seller
+      seller {
+        id
+      }
       assetAddress
       tokenClass
       numberOfTokens
