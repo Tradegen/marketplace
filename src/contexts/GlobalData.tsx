@@ -171,7 +171,7 @@ type IGlobalDataMarketplace = GlobalDataMarketplaceQuery['marketplaces'][number]
  * Hook that fetches overview data, plus all listings and NFT pools for search
  */
 export function useGlobalData(): Partial<IGlobalDataMarketplace> {
-  const [state, { update }] = useGlobalDataContext()
+  const [state, { update, updateAllNFTPoolsInTradegen }] = useGlobalDataContext()
 
   const data: IGlobalDataMarketplace | undefined = state?.globalData
 
@@ -181,7 +181,12 @@ export function useGlobalData(): Partial<IGlobalDataMarketplace> {
     if (globalDataMarketplace) {
       update(globalDataMarketplace)
     }
-  }, [update])
+
+    const allNFTPools = await getAllNFTPoolsOnTradegen()
+    if (allNFTPools) {
+      updateAllNFTPoolsInTradegen(allNFTPools)
+    }
+  }, [update, updateAllNFTPoolsInTradegen])
 
   useEffect(() => {
     if (!data) {

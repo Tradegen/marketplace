@@ -7,12 +7,9 @@ import styled from 'styled-components'
 
 import { ContentWrapper, PageWrapper } from '../components'
 import { AutoColumn } from '../components/Column'
-import GlobalChart from '../components/GlobalChart'
-import GlobalStats from '../components/GlobalStats'
 import { CustomLink } from '../components/Link'
 import Panel from '../components/Panel'
 import { AutoRow, RowBetween } from '../components/Row'
-import Search from '../components/Search'
 import TopPoolList from '../components/PoolList'
 import TopNFTPoolList from '../components/NFTPoolList'
 import TxnList from '../components/TxnList'
@@ -73,9 +70,6 @@ function GlobalPage() {
       <ContentWrapper>
         <div>
           <AutoColumn gap="24px" style={{ paddingBottom: below800 ? '0' : '24px' }}>
-            <TYPE.largeHeader>Tradegen Analytics</TYPE.largeHeader>
-            <Search />
-            <GlobalStats />
           </AutoColumn>
           {below800 && ( // mobile card
             <Box mb={20}>
@@ -112,23 +106,6 @@ function GlobalPage() {
                 </Box>
               </Panel>
             </Box>
-          )}
-          {!below800 && (
-            <GridRow>
-              <Panel style={{ height: '100%', minHeight: '300px' }}>
-                <GlobalChart display="liquidity" />
-              </Panel>
-              <Panel style={{ height: '100%' }}>
-                <GlobalChart display="volume" />
-              </Panel>
-            </GridRow>
-          )}
-          {below800 && (
-            <AutoColumn style={{ marginTop: '6px' }} gap="24px">
-              <Panel style={{ height: '100%', minHeight: '300px' }}>
-                <GlobalChart display="liquidity" />
-              </Panel>
-            </AutoColumn>
           )}
           <ListOptions gap="10px" style={{ marginTop: '2rem', marginBottom: '.5rem' }}>
             <RowBetween>

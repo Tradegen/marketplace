@@ -5,9 +5,8 @@ import { useMedia } from 'react-use'
 import styled from 'styled-components'
 
 import { tradegenClient } from '../../apollo/client'
-import { POOL_SEARCH, NFT_POOL_SEARCH } from '../../apollo/queries'
-import { useAllPoolsInTradegen, useAllNFTPoolsInTradegen } from '../../contexts/GlobalData'
-import { useAllPoolData, usePoolData } from '../../contexts/PoolData'
+import { NFT_POOL_SEARCH } from '../../apollo/marketplaceQueries'
+import { useAllNFTPoolsInTradegen } from '../../contexts/GlobalData'
 import { useAllNFTPoolData, useNFTPoolData } from '../../contexts/NFTPoolData'
 import { TYPE } from '../../Theme'
 import FormattedName from '../FormattedName'
@@ -144,13 +143,9 @@ const Blue = styled.span`
 `
 
 export const Search = ({ small = false }) => {
-  let allPools = useAllPoolsInTradegen()
-  const allPoolData = useAllPoolData()
-
   let allNFTPools = useAllNFTPoolsInTradegen()
   const allNFTPoolData = useAllNFTPoolData()
 
-  console.log(allPoolData)
   console.log(allNFTPoolData)
 
   const [showMenu, toggleMenu] = useState(false)
@@ -158,8 +153,7 @@ export const Search = ({ small = false }) => {
   const [, toggleShadow] = useState(false)
   const [, toggleBottomShadow] = useState(false)
 
-  // fetch new data on pools and NFT pools if needed
-  usePoolData(value)
+  // fetch new data on NFT pools if needed
   useNFTPoolData(value)
 
   const below700 = useMedia('(max-width: 700px)')
@@ -174,21 +168,12 @@ export const Search = ({ small = false }) => {
     }
   }, [value])
 
-  const [searchedPools, setSearchedPools] = useState([])
   const [searchedNFTPools, setSearchedNFTPools] = useState([])
 
   useEffect(() => {
     async function fetchData() {
       try {
         if (value?.length > 0) {
-          let pools = await tradegenClient.query({
-            query: POOL_SEARCH,
-            variables: {
-              value: value ? value.toUpperCase() : '',
-              id: value,
-            },
-          })
-
           let NFTPools = await tradegenClient.query({
             query: NFT_POOL_SEARCH,
             variables: {
@@ -196,9 +181,6 @@ export const Search = ({ small = false }) => {
               id: value,
             },
           })
-
-          const foundPools = pools.data.asAddress.concat(pools.data.asName)
-          setSearchedPools(foundPools)
 
           const foundNFTPools = NFTPools.data.asAddress.concat(NFTPools.data.asName)
           setSearchedNFTPools(foundNFTPools)
@@ -214,20 +196,6 @@ export const Search = ({ small = false }) => {
     return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') // $& means the whole matched string
   }
 
-  // add the searched pools to the list if not found yet
-  allPools = allPools.concat(
-    searchedPools.filter((searchedPool) => {
-      let included = false
-      allPools.map((pool) => {
-        if (pool.id === searchedPool.id) {
-          included = true
-        }
-        return true
-      })
-      return !included
-    })
-  )
-
   // add the searched NFT pools to the list if not found yet
   allNFTPools = allNFTPools.concat(
     searchedNFTPools.filter((searchedNFTPool) => {
@@ -242,19 +210,6 @@ export const Search = ({ small = false }) => {
     })
   )
 
-  let uniquePools = []
-  let found = {}
-  allPools &&
-    allPools.map((pool) => {
-      if (pool && !found[pool.id]) {
-        found[pool.id] = true
-        uniquePools.push(pool)
-      }
-      return true
-    })
-
-  console.log(allPools)
-
   let uniqueNFTPools = []
   let found2 = {}
   allNFTPools &&
@@ -265,31 +220,6 @@ export const Search = ({ small = false }) => {
       }
       return true
     })
-
-  const filteredPoolList = useMemo(() => {
-    return uniquePools
-      ? uniquePools
-        .sort((a, b) => {
-          const poolA = allPoolData[a.id]
-          const poolB = allPoolData[b.id]
-
-          return (poolA && poolB) ? (poolA.totalValueLockedUSD > poolB.totalValueLockedUSD ? -1 : 1) : -1
-        })
-        .filter((pool) => {
-          const regexMatches = Object.keys(pool).map((poolEntryKey) => {
-            const isAddress = value.slice(0, 2) === '0x'
-            if (poolEntryKey === 'id' && isAddress) {
-              return pool[poolEntryKey].match(new RegExp(escapeRegExp(value), 'i'))
-            }
-            if (poolEntryKey === 'name' && !isAddress) {
-              return pool[poolEntryKey].match(new RegExp(escapeRegExp(value), 'i'))
-            }
-            return false
-          })
-          return regexMatches.some((m) => m)
-        })
-      : []
-  }, [allPoolData, uniquePools, value])
 
   const filteredNFTPoolList = useMemo(() => {
     return uniqueNFTPools
@@ -317,14 +247,6 @@ export const Search = ({ small = false }) => {
   }, [allNFTPoolData, uniqueNFTPools, value])
 
   useEffect(() => {
-    if (Object.keys(filteredPoolList).length > 2) {
-      toggleShadow(true)
-    } else {
-      toggleShadow(false)
-    }
-  }, [filteredPoolList])
-
-  useEffect(() => {
     if (Object.keys(filteredNFTPoolList).length > 2) {
       toggleBottomShadow(true)
     } else {
@@ -332,11 +254,9 @@ export const Search = ({ small = false }) => {
     }
   }, [filteredNFTPoolList])
 
-  const [poolsShown, setPoolsShown] = useState(3)
   const [NFTPoolsShown, setNFTPoolsShown] = useState(3)
 
   function onDismiss() {
-    setPoolsShown(3)
     setNFTPoolsShown(3)
     toggleMenu(false)
     setValue('')
@@ -351,7 +271,6 @@ export const Search = ({ small = false }) => {
       !(menuRef.current && menuRef.current.contains(e.target)) &&
       !(wrapperRef.current && wrapperRef.current.contains(e.target))
     ) {
-      setPoolsShown(3)
       setNFTPoolsShown(3)
       toggleMenu(false)
     }
@@ -379,8 +298,8 @@ export const Search = ({ small = false }) => {
                 : below470
                   ? 'Search Tradegen...'
                   : below700
-                    ? 'Search pools and NFT pools...'
-                    : 'Search Tradegen pools and NFT pools...'
+                    ? 'Search NFT pools...'
+                    : 'Search Tradegen NFT pools...'
           }
           value={value}
           onChange={(e) => {
@@ -395,39 +314,6 @@ export const Search = ({ small = false }) => {
         {!showMenu ? <SearchIconLarge /> : <CloseIcon onClick={() => toggleMenu(false)} />}
       </Wrapper>
       <Menu hide={!showMenu} ref={menuRef}>
-        <Heading>
-          <Gray>Pools</Gray>
-        </Heading>
-        <div>
-          {filteredPoolList && Object.keys(filteredPoolList).length === 0 && (
-            <MenuItem>
-              <TYPE.body>No results</TYPE.body>
-            </MenuItem>
-          )}
-          {filteredPoolList &&
-            filteredPoolList.slice(0, poolsShown).map((pool) => {
-              return (
-                <BasicLink to={'/pool/' + pool.id} key={pool.id} onClick={onDismiss}>
-                  <MenuItem>
-                    <RowFixed>
-                      <FormattedName text={pool.name} maxCharacters={20} style={{ marginRight: '6px' }} />
-                    </RowFixed>
-                  </MenuItem>
-                </BasicLink>
-              )
-            })}
-          <Heading
-            hide={!(Object.keys(filteredPoolList).length > 3 && Object.keys(filteredPoolList).length >= poolsShown)}
-          >
-            <Blue
-              onClick={() => {
-                setPoolsShown(poolsShown + 5)
-              }}
-            >
-              See more...
-            </Blue>
-          </Heading>
-        </div>
         <Heading>
           <Gray>NFT Pools</Gray>
         </Heading>
