@@ -28,6 +28,7 @@ import {
 } from '../utils'
 import { useTimeframe } from './Application'
 import { useAllNFTPoolData } from './NFTPoolData'
+import { toBigDecimal } from '../utils/typeAssertions'
 
 const UPDATE = 'UPDATE'
 const UPDATE_ALL_LISTINGS_IN_MARKETPLACE = 'UPDATE_ALL_LISTINGS_IN_MARKETPLACE'
@@ -226,6 +227,8 @@ async function getGlobalDataMarketplace(): Promise<IGlobalDataMarketplace | null
   let oneDayData: GlobalDataMarketplaceQuery['marketplaces'][number] | null = null
   let twoDayData: GlobalDataMarketplaceQuery['marketplaces'][number] | null = null
 
+  console.log("global data!!!!!!!!")
+
   try {
     // get timestamps for the days
     const utcCurrentTime = dayjs()
@@ -317,56 +320,56 @@ async function getGlobalDataMarketplace(): Promise<IGlobalDataMarketplace | null
     })
     const twoMonthData = twoMonthResult.data.marketplaces[0]
 
-    if (data && oneDayData && twoDayData && oneWeekData && twoWeekData && oneMonthData && twoMonthData) {
+    if (data) {
       //Get volume in USD
       const [oneDayVolumeUSD, dailyVolumeChangeUSD] = get2DayPercentChange(
         data.totalVolumeUSD,
-        oneDayData.totalVolumeUSD,
-        twoDayData.totalVolumeUSD
+        oneDayData ? oneDayData.totalVolumeUSD : toBigDecimal("0"),
+        twoDayData ? twoDayData.totalVolumeUSD : toBigDecimal("0")
       )
       const [oneWeekVolumeUSD, weeklyVolumeChangeUSD] = get2DayPercentChange(
         data.totalVolumeUSD,
-        oneWeekData.totalVolumeUSD,
-        twoWeekData.totalVolumeUSD
+        oneWeekData ? oneWeekData.totalVolumeUSD : toBigDecimal("0"),
+        twoWeekData ? twoWeekData.totalVolumeUSD : toBigDecimal("0")
       )
       const [oneMonthVolumeUSD, monthlyVolumeChangeUSD] = get2DayPercentChange(
         data.totalVolumeUSD,
-        oneMonthData.totalVolumeUSD,
-        twoMonthData.totalVolumeUSD
+        oneMonthData ? oneMonthData.totalVolumeUSD : toBigDecimal("0"),
+        twoMonthData ? twoMonthData.totalVolumeUSD : toBigDecimal("0")
       )
 
       //Get volume in tokens
       const [oneDayVolumeTokens, dailyVolumeChangeTokens] = get2DayPercentChange(
         data.totalTokensSold,
-        oneDayData.totalTokensSold,
-        twoDayData.totalTokensSold
+        oneDayData ? oneDayData.totalTokensSold : '0',
+        twoDayData ? twoDayData.totalTokensSold : '0'
       )
       const [oneWeekVolumeTokens, weeklyVolumeChangeTokens] = get2DayPercentChange(
         data.totalTokensSold,
-        oneWeekData.totalTokensSold,
-        twoWeekData.totalTokensSold
+        oneWeekData ? oneWeekData.totalTokensSold : '0',
+        twoWeekData ? twoWeekData.totalTokensSold : '0'
       )
       const [oneMonthVolumeTokens, monthlyVolumeChangeTokens] = get2DayPercentChange(
         data.totalTokensSold,
-        oneMonthData.totalTokensSold,
-        twoMonthData.totalTokensSold
+        oneMonthData ? oneMonthData.totalTokensSold : '0',
+        twoMonthData ? twoMonthData.totalTokensSold : '0'
       )
 
       //Get transaction count
       const [oneDayTxns, dailyTxnChange] = get2DayPercentChange(
         data.txCount,
-        oneDayData.txCount ? oneDayData.txCount : '0',
-        twoDayData.txCount ? twoDayData.txCount : '0'
+        oneDayData ? oneDayData.txCount : '0',
+        twoDayData ? twoDayData.txCount : '0'
       )
       const [oneWeekTxns, weeklyTxnChange] = get2DayPercentChange(
         data.txCount,
-        oneWeekData.txCount ? oneWeekData.txCount : '0',
-        twoWeekData.txCount ? twoWeekData.txCount : '0'
+        oneWeekData ? oneWeekData.txCount : '0',
+        twoWeekData ? twoWeekData.txCount : '0'
       )
       const [oneMonthTxns, monthlyTxnChange] = get2DayPercentChange(
         data.txCount,
-        oneMonthData.txCount ? oneMonthData.txCount : '0',
-        twoMonthData.txCount ? twoMonthData.txCount : '0'
+        oneMonthData ? oneMonthData.txCount : '0',
+        twoMonthData ? twoMonthData.txCount : '0'
       )
 
       const additionalData = {
@@ -390,6 +393,7 @@ async function getGlobalDataMarketplace(): Promise<IGlobalDataMarketplace | null
         weeklyTxnChange: weeklyTxnChange,
         monthlyTxnChange: monthlyTxnChange,
       }
+      console.log(additionalData)
       return { ...data, ...additionalData }
     }
   } catch (e) {
