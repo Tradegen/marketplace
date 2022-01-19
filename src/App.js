@@ -8,7 +8,7 @@ import GoogleAnalyticsReporter from './components/analytics/GoogleAnalyticsRepor
 import LocalLoader from './components/LocalLoader'
 import SideNav from './components/SideNav'
 import Header from './components/Header'
-import { useGlobalChartData, useGlobalData } from './contexts/GlobalData'
+import { useGlobalData } from './contexts/GlobalData'
 import AccountLookup from './pages/AccountLookup'
 import AccountPage from './pages/AccountPage'
 import AllNFTPoolsPage from './pages/AllNFTPoolsPage'
@@ -62,15 +62,12 @@ function App() {
   const [savedOpen, setSavedOpen] = useState(false)
 
   const globalData = useGlobalData()
-  const globalChartData = useGlobalChartData()
 
   return (
     <ApolloProvider client={client}>
       <AppWrapper>
         {globalData &&
-          Object.keys(globalData).length > 0 &&
-          globalChartData &&
-          Object.keys(globalChartData).length > 0 ? (
+          Object.keys(globalData).length > 0 ? (
           <BrowserRouter>
             <Header></Header>
             <Route component={GoogleAnalyticsReporter} />
