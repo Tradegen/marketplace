@@ -15,7 +15,8 @@ import {
   GLOBAL_DATA_MARKETPLACE,
   GLOBAL_DATA_MARKETPLACE_LATEST,
   ALL_LISTINGS,
-  ALL_NFT_POOLS
+  ALL_NFT_POOLS,
+  GLOBAL_TXNS_TRADEGEN
 } from '../apollo/marketplaceQueries'
 import { MARKETPLACE_ADDRESS } from '../constants'
 import {
@@ -31,6 +32,7 @@ import { useAllNFTPoolData } from './NFTPoolData'
 const UPDATE = 'UPDATE'
 const UPDATE_ALL_LISTINGS_IN_MARKETPLACE = 'UPDATE_ALL_LISTINGS_IN_MARKETPLACE'
 const UPDATE_ALL_NFT_POOLS_IN_TRADEGEN = 'UPDATE_ALL_NFT_POOLS_IN_TRADEGEN'
+const UPDATE_TXNS_TRADEGEN = 'UPDATE_TXNS_TRADEGEN'
 
 const offsetVolumes = [
   // '0x9ea3b5b4ec044b70375236a281986106457b20ef',
@@ -48,12 +50,14 @@ interface IGlobalDataState {
   globalData?: IGlobalDataMarketplace
   allListings: unknown
   allNFTPools: unknown
+  transactionsTradegen?: unknown
 }
 
 interface IGlobalDataActions {
   update: (data: IGlobalDataMarketplace) => void
   updateAllListingsInMarketplace: (tokens: unknown[]) => void
   updateAllNFTPoolsInTradegen: (tokens: unknown[]) => void
+  updateTransactionsTradegen: (txns: unknown) => void
 }
 
 const GlobalDataContext = createContext<[IGlobalDataState, IGlobalDataActions]>(null)
@@ -84,6 +88,14 @@ function reducer(state, { type, payload }) {
       return {
         ...state,
         allNFTPools,
+      }
+    }
+
+    case UPDATE_TXNS_TRADEGEN: {
+      const { transactionsTradegen } = payload
+      return {
+        ...state,
+        transactionsTradegen,
       }
     }
 
@@ -121,6 +133,15 @@ export default function Provider({ children }: { children: React.ReactNode }) {
     })
   }, [])
 
+  const updateTransactionsTradegen = useCallback((transactionsTradegen) => {
+    dispatch({
+      type: UPDATE_TXNS_TRADEGEN,
+      payload: {
+        transactionsTradegen,
+      },
+    })
+  }, [])
+
   return (
     <GlobalDataContext.Provider
       value={useMemo(
@@ -129,14 +150,16 @@ export default function Provider({ children }: { children: React.ReactNode }) {
           {
             update,
             updateAllListingsInMarketplace,
-            updateAllNFTPoolsInTradegen
+            updateAllNFTPoolsInTradegen,
+            updateTransactionsTradegen,
           },
         ],
         [
           state,
           update,
           updateAllListingsInMarketplace,
-          updateAllNFTPoolsInTradegen
+          updateAllNFTPoolsInTradegen,
+          updateTransactionsTradegen,
         ]
       )}
     >
@@ -374,6 +397,52 @@ async function getGlobalDataMarketplace(): Promise<IGlobalDataMarketplace | null
   }
 
   return data
+}
+
+/**
+ * Get and format transactions for global page
+ */
+ const getGlobalTransactionsTradegen = async () => {
+  const createListings = []
+  const purchases = []
+
+  try {
+    const result = await marketplaceClient.query<GlobalTransactionsTradegenQuery>({
+      query: GLOBAL_TXNS_TRADEGEN,
+      fetchPolicy: 'cache-first',
+    })
+    result?.data?.transactions &&
+      result.data.transactions.map((transaction) => {
+        if (transaction.createListing) {
+          return createListings.push(transaction.createListing)
+        }
+        if (transaction.purchase) {
+          return purchases.push(transaction.purchase)
+        }
+        return true
+      })
+    return { createListings, purchases }
+  } catch (e) {
+    console.log(e)
+  }
+
+  return {}
+}
+
+export function useGlobalTransactionsTradegen() {
+  const [state, { updateTransactionsTradegen }] = useGlobalDataContext()
+  const transactionsTradegen = state?.transactionsTradegen
+  useEffect(() => {
+    async function fetchData() {
+      if (!transactionsTradegen) {
+        const txns = await getGlobalTransactionsTradegen()
+        console.log(txns)
+        updateTransactionsTradegen(txns)
+      }
+    }
+    fetchData()
+  }, [updateTransactionsTradegen, transactionsTradegen])
+  return transactionsTradegen
 }
 
 export function useAllNFTPoolsInTradegen() {
