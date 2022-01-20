@@ -19,6 +19,7 @@ import { useAllNFTPoolData } from '../contexts/NFTPoolData'
 import { ThemedBackground, TYPE } from '../Theme'
 import { formattedNum, formattedPercent } from '../utils'
 import { toBigDecimal } from '../utils/typeAssertions'
+import GlobalStats from '../components/GlobalStats'
 
 const ListOptions = styled(AutoRow)`
   height: 40px;
@@ -44,11 +45,7 @@ function GlobalPage() {
   // get data for lists and totals
   const allPools = useAllPoolData()
   const allNFTPools = useAllNFTPoolData()
-  const { totalValueLockedUSD, oneDayVolumeUSD, volumeChangeUSD, totalValueLockedChangeUSD } = useGlobalData()
   const transactionsTradegen = useGlobalTransactionsTradegen()
-
-  console.log(totalValueLockedUSD)
-  console.log(oneDayVolumeUSD)
 
   // breakpoints
   const below800 = useMedia('(max-width: 800px)')
@@ -71,6 +68,7 @@ function GlobalPage() {
         <div>
           <AutoColumn gap="24px" style={{ paddingBottom: below800 ? '0' : '24px' }}>
           </AutoColumn>
+          <GlobalStats></GlobalStats>
           {below800 && ( // mobile card
             <Box mb={20}>
               <Panel>

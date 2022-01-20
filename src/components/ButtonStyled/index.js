@@ -7,6 +7,28 @@ import styled from 'styled-components'
 import { StyledIcon } from '..'
 import { RowBetween } from '../Row'
 
+export const ButtonTransparent = styled(RebassButton)`
+  background: none;
+  color: rgb(195, 197, 203);
+  cursor: pointer;
+  position: relative;
+  z-index: 1;
+  text-align: left !important;
+  align-items: left !important;
+  &:focus {
+    font-weight: 600;
+    color: white;
+  }
+  &:hover {
+    font-weight: 600;
+    color: white;
+  }
+  &:active {
+    font-weight: 600;
+    color: white;
+  }
+`
+
 const Base = styled(RebassButton)`
   padding: 8px 12px;
   font-size: 0.825rem;

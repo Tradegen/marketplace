@@ -174,18 +174,21 @@ type IGlobalDataMarketplace = GlobalDataMarketplaceQuery['marketplaces'][number]
     oneDayVolumeUSD: number
     oneWeekVolumeUSD: number
     oneMonthVolumeUSD: number
+    allTimeVolumeUSD: number
     dailyVolumeChangeUSD: number
     weeklyVolumeChangeUSD: number
     monthlyVolumeChangeUSD: number
     oneDayVolumeTokens: number
     oneWeekVolumeTokens: number
     oneMonthVolumeTokens: number
+    allTimeVolumeTokens: number
     dailyVolumeChangeTokens: number
     weeklyVolumeChangeTokens: number
     monthlyVolumeChangeTokens: number
     oneDayTxns: number
     oneWeekTxns: number
     oneMonthTxns: number
+    allTimeTxns: number
     dailyTxnChange: number
     weeklyTxnChange: number
     monthlyTxnChange: number
@@ -377,18 +380,21 @@ async function getGlobalDataMarketplace(): Promise<IGlobalDataMarketplace | null
         oneDayVolumeUSD: oneDayVolumeUSD,
         oneWeekVolumeUSD: oneWeekVolumeUSD,
         oneMonthVolumeUSD: oneMonthVolumeUSD,
+        allTimeVolumeUSD: data.totalVolumeUSD ? Number(data.totalTokensSold.toString()) : 0,
         dailyVolumeChangeUSD: dailyVolumeChangeUSD,
         weeklyVolumeChangeUSD: weeklyVolumeChangeUSD,
         monthlyVolumeChangeUSD: monthlyVolumeChangeUSD,
         oneDayVolumeTokens: oneDayVolumeTokens,
         oneWeekVolumeTokens: oneWeekVolumeTokens,
         oneMonthVolumeTokens: oneMonthVolumeTokens,
+        allTimeVolumeTokens: data.totalTokensSold ? Number(data.totalTokensSold.toString()) : 0,
         dailyVolumeChangeTokens: dailyVolumeChangeTokens,
         weeklyVolumeChangeTokens: weeklyVolumeChangeTokens,
         monthlyVolumeChangeTokens: monthlyVolumeChangeTokens,
         oneDayTxns: oneDayTxns,
         oneWeekTxns: oneWeekTxns,
         oneMonthTxns: oneMonthTxns,
+        allTimeTxns: data.txCount ? Number(data.txCount.toString()) : 0,
         dailyTxnChange: dailyTxnChange,
         weeklyTxnChange: weeklyTxnChange,
         monthlyTxnChange: monthlyTxnChange,
