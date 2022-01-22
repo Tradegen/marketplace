@@ -127,7 +127,7 @@ export const FILTERED_TRANSACTIONS_TRADEGEN = gql`
 
 export const GLOBAL_TXNS_TRADEGEN = gql`
   query GlobalTransactionsTradegen {
-    transactions(first: 100, orderBy: timestamp, orderDirection: desc) {
+    transactions(first: 20, orderBy: timestamp, orderDirection: desc) {
       createListing {
         id
         timestamp

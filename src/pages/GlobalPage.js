@@ -2,23 +2,19 @@ import { transparentize } from 'polished'
 import React, { useEffect } from 'react'
 import { withRouter } from 'react-router-dom'
 import { useMedia } from 'react-use'
-import { Box } from 'rebass'
 import styled from 'styled-components'
 
 import { ContentWrapper, PageWrapper } from '../components'
 import { AutoColumn } from '../components/Column'
-import { CustomLink } from '../components/Link'
 import Panel from '../components/Panel'
 import { AutoRow, RowBetween } from '../components/Row'
 import TopPoolList from '../components/PoolList'
-import TopNFTPoolList from '../components/NFTPoolList'
+import RecentlyPurchasedList from '../components/RecentlyPurchasedList'
 import TxnList from '../components/TxnList'
 import { useGlobalData, useGlobalTransactionsTradegen } from '../contexts/GlobalData'
 import { useAllPoolData } from '../contexts/PoolData'
 import { useAllNFTPoolData } from '../contexts/NFTPoolData'
 import { ThemedBackground, TYPE } from '../Theme'
-import { formattedNum, formattedPercent } from '../utils'
-import { toBigDecimal } from '../utils/typeAssertions'
 import GlobalStats from '../components/GlobalStats'
 
 const ListOptions = styled(AutoRow)`
@@ -47,6 +43,8 @@ function GlobalPage() {
   const allNFTPools = useAllNFTPoolData()
   const transactionsTradegen = useGlobalTransactionsTradegen()
 
+  console.log(transactionsTradegen);
+
   // breakpoints
   const below800 = useMedia('(max-width: 800px)')
 
@@ -69,46 +67,9 @@ function GlobalPage() {
           <AutoColumn gap="24px" style={{ paddingBottom: below800 ? '0' : '24px' }}>
           </AutoColumn>
           <GlobalStats></GlobalStats>
-          {below800 && ( // mobile card
-            <Box mb={20}>
-              <Panel>
-                <Box>
-                  <AutoColumn gap="36px">
-                    <AutoColumn gap="20px">
-                      <RowBetween>
-                        <TYPE.main>Volume (24hrs)</TYPE.main>
-                        <div />
-                      </RowBetween>
-                      <RowBetween align="flex-end">
-                        <TYPE.main fontSize={'1.5rem'} lineHeight={1} fontWeight={600}>
-                          {(oneDayVolumeUSD || oneDayVolumeUSD == 0) ? formattedNum(oneDayVolumeUSD, true) : '-'}
-                        </TYPE.main>
-                        <TYPE.main fontSize={12}>{volumeChangeUSD ? formattedPercent(volumeChangeUSD) : '-'}</TYPE.main>
-                      </RowBetween>
-                    </AutoColumn>
-                    <AutoColumn gap="20px">
-                      <RowBetween>
-                        <TYPE.main>Total Value Locked</TYPE.main>
-                        <div />
-                      </RowBetween>
-                      <RowBetween align="flex-end">
-                        <TYPE.main fontSize={'1.5rem'} lineHeight={1} fontWeight={600}>
-                          {totalValueLockedUSD ? formattedNum(totalValueLockedUSD / toBigDecimal("1e18"), true) : '-'}
-                        </TYPE.main>
-                        <TYPE.main fontSize={12}>
-                          {totalValueLockedChangeUSD ? formattedPercent(totalValueLockedChangeUSD) : '-'}
-                        </TYPE.main>
-                      </RowBetween>
-                    </AutoColumn>
-                  </AutoColumn>
-                </Box>
-              </Panel>
-            </Box>
-          )}
           <ListOptions gap="10px" style={{ marginTop: '2rem', marginBottom: '.5rem' }}>
             <RowBetween>
-              <TYPE.main fontSize={'1.125rem'}>Top Pools</TYPE.main>
-              <CustomLink to={'/tokens'}>See All</CustomLink>
+              <TYPE.main fontSize={'1.125rem'}>Recently Listed</TYPE.main>
             </RowBetween>
           </ListOptions>
           <Panel style={{ marginTop: '6px', padding: '1.125rem 0 ' }}>
@@ -116,12 +77,11 @@ function GlobalPage() {
           </Panel>
           <ListOptions gap="10px" style={{ marginTop: '2rem', marginBottom: '.5rem' }}>
             <RowBetween>
-              <TYPE.main fontSize={'1rem'}>Top NFT Pools</TYPE.main>
-              <CustomLink to={'/pairs'}>See All</CustomLink>
+              <TYPE.main fontSize={'1rem'}>Recently Purchased</TYPE.main>
             </RowBetween>
           </ListOptions>
           <Panel style={{ marginTop: '6px', padding: '1.125rem 0 ' }}>
-            <TopNFTPoolList NFTPools={allNFTPools} useTracked={true} />
+            <RecentlyPurchasedList purchases={transactionsTradegen ? transactionsTradegen.purchases : []} useTracked={true} />
           </Panel>
           <span>
             <TYPE.main fontSize={'1.125rem'} style={{ marginTop: '2rem' }}>
