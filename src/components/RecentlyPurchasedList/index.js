@@ -104,15 +104,6 @@ const DataText = styled(Flex)`
   }
 `
 
-const SORT_FIELD = {
-    TVL: 'totalValueLockedUSD',
-    NAME: 'name',
-    PRICE: 'priceUSD',
-    CHANGE: 'priceChangeUSD',
-    FEE: 'performanceFee',
-    ROI: 'totalReturn'
-}
-
 // @TODO rework into virtualized list
 function RecentlyPurchasedList({ purchases, itemMax = 10, useTracked = false }) {
     // page state

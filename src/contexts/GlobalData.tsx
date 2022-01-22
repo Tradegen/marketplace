@@ -10,13 +10,16 @@ import {
   GlobalDataMarketplaceQuery,
   GlobalDataMarketplaceQueryVariables,
   GlobalTransactionsTradegenQuery,
+  RecentListingsQuery,
+  RecentListingsQueryVariables
 } from '../apollo/generated/types'
 import {
   GLOBAL_DATA_MARKETPLACE,
   GLOBAL_DATA_MARKETPLACE_LATEST,
   ALL_LISTINGS,
   ALL_NFT_POOLS,
-  GLOBAL_TXNS_TRADEGEN
+  GLOBAL_TXNS_TRADEGEN,
+  RECENT_LISTINGS
 } from '../apollo/marketplaceQueries'
 import { MARKETPLACE_ADDRESS } from '../constants'
 import {
@@ -34,6 +37,7 @@ const UPDATE = 'UPDATE'
 const UPDATE_ALL_LISTINGS_IN_MARKETPLACE = 'UPDATE_ALL_LISTINGS_IN_MARKETPLACE'
 const UPDATE_ALL_NFT_POOLS_IN_TRADEGEN = 'UPDATE_ALL_NFT_POOLS_IN_TRADEGEN'
 const UPDATE_TXNS_TRADEGEN = 'UPDATE_TXNS_TRADEGEN'
+const UPDATE_RECENT_LISTINGS = 'UPDATE_RECENT_LISTINGS'
 
 const offsetVolumes = [
   // '0x9ea3b5b4ec044b70375236a281986106457b20ef',
@@ -49,6 +53,7 @@ dayjs.extend(weekOfYear)
 
 interface IGlobalDataState {
   globalData?: IGlobalDataMarketplace
+  recentListings?: unknown
   allListings: unknown
   allNFTPools: unknown
   transactionsTradegen?: unknown
@@ -59,6 +64,7 @@ interface IGlobalDataActions {
   updateAllListingsInMarketplace: (tokens: unknown[]) => void
   updateAllNFTPoolsInTradegen: (tokens: unknown[]) => void
   updateTransactionsTradegen: (txns: unknown) => void
+  updateRecentListings: (listings: unknown[]) => void
 }
 
 const GlobalDataContext = createContext<[IGlobalDataState, IGlobalDataActions]>(null)
@@ -97,6 +103,14 @@ function reducer(state, { type, payload }) {
       return {
         ...state,
         transactionsTradegen,
+      }
+    }
+
+    case UPDATE_RECENT_LISTINGS: {
+      const { recentListings } = payload
+      return {
+        ...state,
+        recentListings,
       }
     }
 
@@ -143,6 +157,15 @@ export default function Provider({ children }: { children: React.ReactNode }) {
     })
   }, [])
 
+  const updateRecentListings = useCallback((recentListings) => {
+    dispatch({
+      type: UPDATE_RECENT_LISTINGS,
+      payload: {
+        recentListings,
+      },
+    })
+  }, [])
+
   return (
     <GlobalDataContext.Provider
       value={useMemo(
@@ -153,6 +176,7 @@ export default function Provider({ children }: { children: React.ReactNode }) {
             updateAllListingsInMarketplace,
             updateAllNFTPoolsInTradegen,
             updateTransactionsTradegen,
+            updateRecentListings
           },
         ],
         [
@@ -161,6 +185,7 @@ export default function Provider({ children }: { children: React.ReactNode }) {
           updateAllListingsInMarketplace,
           updateAllNFTPoolsInTradegen,
           updateTransactionsTradegen,
+          updateRecentListings
         ]
       )}
     >
@@ -489,4 +514,41 @@ async function getAllNFTPoolsOnTradegen() {
   } catch (e) {
     console.log(e)
   }
+}
+
+async function getRecentListings() {
+  try {
+    const result = await marketplaceClient.query({
+      query: RECENT_LISTINGS,
+      fetchPolicy: 'cache-first',
+    })
+    let listings = result?.data?.listings
+    if (!listings) {
+      return []
+    }
+    listings = listings.filter((x) => {
+      return x.exists
+    })
+    return listings.slice(0, 20)
+  } catch (e) {
+    console.log(e)
+  }
+
+  return []
+}
+
+export function useRecentListings() {
+  const [state, { updateRecentListings }] = useGlobalDataContext()
+  const recentListings = state?.recentListings
+  useEffect(() => {
+    async function fetchData() {
+      if (!recentListings) {
+        const listings = await getRecentListings()
+        console.log(listings)
+        updateRecentListings(listings)
+      }
+    }
+    fetchData()
+  }, [updateRecentListings, recentListings])
+  return recentListings
 }

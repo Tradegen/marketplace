@@ -160,7 +160,7 @@ export const GlobalStyle = createGlobalStyle`
     width: 100%;
     height: 100%;
     font-size: 14px;    
-    background-color: ${({ theme }) => (theme as any).bg6};
+    background-color: rgb(14, 14, 35);
   }
 
   a {

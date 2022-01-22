@@ -179,6 +179,7 @@ export const ALL_LISTINGS = gql`
   query AllListings($skip: Int!) {
     listings(first: 500, skip: $skip) {
       id
+      lastUpdated
       assetAddress
       tokenClass
       tokenPrice
@@ -224,6 +225,23 @@ export const USER_LISTINGS_TRADEGEN = gql`
       tokenClass
       numberOfTokens
       tokenPrice
+    }
+  }
+`
+
+export const RECENT_LISTINGS = gql`
+  query RecentListings {
+    listings(first: 50, orderBy: lastUpdated, orderDirection: desc) {
+        id
+        exists
+        lastUpdated
+        seller {
+          id
+        }
+        assetAddress
+        tokenClass
+        numberOfTokens
+        tokenPrice
     }
   }
 `

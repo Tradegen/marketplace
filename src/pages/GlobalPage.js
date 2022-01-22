@@ -10,8 +10,9 @@ import Panel from '../components/Panel'
 import { AutoRow, RowBetween } from '../components/Row'
 import TopPoolList from '../components/PoolList'
 import RecentlyPurchasedList from '../components/RecentlyPurchasedList'
+import RecentlyListedList from '../components/RecentlyListedList'
 import TxnList from '../components/TxnList'
-import { useGlobalData, useGlobalTransactionsTradegen } from '../contexts/GlobalData'
+import { useGlobalData, useRecentListings, useGlobalTransactionsTradegen } from '../contexts/GlobalData'
 import { useAllPoolData } from '../contexts/PoolData'
 import { useAllNFTPoolData } from '../contexts/NFTPoolData'
 import { ThemedBackground, TYPE } from '../Theme'
@@ -40,10 +41,10 @@ const GridRow = styled.div`
 function GlobalPage() {
   // get data for lists and totals
   const allPools = useAllPoolData()
-  const allNFTPools = useAllNFTPoolData()
+  const recentListings = useRecentListings()
   const transactionsTradegen = useGlobalTransactionsTradegen()
 
-  console.log(transactionsTradegen);
+  console.log(recentListings)
 
   // breakpoints
   const below800 = useMedia('(max-width: 800px)')
@@ -73,7 +74,7 @@ function GlobalPage() {
             </RowBetween>
           </ListOptions>
           <Panel style={{ marginTop: '6px', padding: '1.125rem 0 ' }}>
-            <TopPoolList pools={allPools} />
+            <RecentlyListedList listings={recentListings ?? []} useTracked={true} />
           </Panel>
           <ListOptions gap="10px" style={{ marginTop: '2rem', marginBottom: '.5rem' }}>
             <RowBetween>
@@ -82,14 +83,6 @@ function GlobalPage() {
           </ListOptions>
           <Panel style={{ marginTop: '6px', padding: '1.125rem 0 ' }}>
             <RecentlyPurchasedList purchases={transactionsTradegen ? transactionsTradegen.purchases : []} useTracked={true} />
-          </Panel>
-          <span>
-            <TYPE.main fontSize={'1.125rem'} style={{ marginTop: '2rem' }}>
-              Transactions
-            </TYPE.main>
-          </span>
-          <Panel style={{ margin: '1rem 0' }}>
-            <TxnList transactions={transactionsTradegen} />
           </Panel>
         </div>
       </ContentWrapper>

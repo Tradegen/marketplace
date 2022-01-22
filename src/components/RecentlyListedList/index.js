@@ -5,14 +5,10 @@ import { withRouter } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Box, Flex, Text } from 'rebass'
 import styled from 'styled-components'
-import { useAllTokenData } from '../../contexts/TokenData'
 
 import { TYPE } from '../../Theme'
-import { formattedNum, formattedPercent, calculateTVL, calculatePreviousDayTVL } from '../../utils'
+import { formattedNum, formatTime } from '../../utils'
 import { Divider } from '..'
-import FormattedName from '../FormattedName'
-import { CustomLink } from '../Link'
-import Row from '../Row'
 
 dayjs.extend(utc)
 
@@ -108,29 +104,13 @@ const DataText = styled(Flex)`
   }
 `
 
-const SORT_FIELD = {
-    TVL: 'totalValueLockedUSD',
-    NAME: 'name',
-    PRICE: 'priceUSD',
-    CHANGE: 'priceChangeUSD',
-    FEE: 'performanceFee',
-    ROI: 'totalReturn'
-}
-
 // @TODO rework into virtualized list
 function RecentlyListedList({ listings, itemMax = 10, useTracked = false }) {
     // page state
     const [page, setPage] = useState(1)
     const [maxPage, setMaxPage] = useState(1)
 
-    const allTokens = useAllTokenData();
-
-    console.log(allTokens)
     console.log(listings)
-
-    // sorting
-    const [sortDirection, setSortDirection] = useState(true)
-    const [sortedColumn, setSortedColumn] = useState(SORT_FIELD.TVL)
 
     const below1080 = useMedia('(max-width: 1080px)')
     const below680 = useMedia('(max-width: 680px)')
@@ -139,88 +119,48 @@ function RecentlyListedList({ listings, itemMax = 10, useTracked = false }) {
     useEffect(() => {
         setMaxPage(1) // edit this to do modular
         setPage(1)
-    }, [pools])
+    }, [listings])
 
-    const formattedPools = useMemo(() => {
+    const formattedListings = useMemo(() => {
         return (
-            pools &&
-            Object.keys(pools)
-                .map((key) => pools[key])
-                .filter((pool) => pool.totalValueLockedUSD > 0)
+            listings &&
+            Object.keys(listings)
+                .map((key) => listings[key])
+                .filter((listing) => listing.numberOfTokens > 0)
         )
-    }, [pools])
-
-    const filteredList = useMemo(() => {
-        return (
-            formattedPools &&
-            formattedPools
-                .sort((a, b) => {
-                    if (sortedColumn === SORT_FIELD.NAME) {
-                        return a[sortedColumn] > b[sortedColumn] ? (sortDirection ? -1 : 1) * 1 : (sortDirection ? -1 : 1) * -1
-                    }
-                    return parseFloat(a[sortedColumn]) > parseFloat(b[sortedColumn])
-                        ? (sortDirection ? -1 : 1) * 1
-                        : (sortDirection ? -1 : 1) * -1
-                })
-                .slice(itemMax * (page - 1), page * itemMax)
-        )
-    }, [formattedPools, itemMax, page, sortDirection, sortedColumn])
+    }, [listings])
 
     useEffect(() => {
-        if (pools && formattedPools) {
+        if (listings && formattedListings) {
             let extraPages = 1
-            if (formattedPools.length % itemMax === 0) {
+            if (formattedListings.length % itemMax === 0) {
                 extraPages = 0
             }
-            setMaxPage(Math.floor(formattedPools.length / itemMax) + extraPages)
+            setMaxPage(Math.floor(formattedListings.length / itemMax) + extraPages)
         }
-    }, [pools, formattedPools, itemMax])
+    }, [listings, formattedListings, itemMax])
 
     const ListItem = ({ item, index }) => {
-        let currentTVL = calculateTVL(allTokens, item.positionAddresses, item.positionBalances)
-        let previousTVL = calculatePreviousDayTVL(allTokens, item.oneDayData.positionAddresses, item.oneDayData.positionBalances)
         console.log(item)
-        let currentPrice = BigInt(currentTVL) * BigInt(1e18) / BigInt(item.totalSupply);
-        let previousPrice = BigInt(previousTVL) * BigInt(1e18) / BigInt(item.oneDayData.totalSupply)
-        console.log(currentPrice)
-
-        let priceChange = 100 * (Number(currentPrice.toString()) - Number(previousPrice.toString())) / Number(previousPrice.toString())
-        console.log(priceChange)
-
-        let totalReturn;
-        if (!item || !item.tokenPrice) {
-            totalReturn = 0;
-        }
-        else {
-            totalReturn = 100 * (Number(currentPrice) - 1e18) / 1e18
-        }
 
         return (
             <DashGrid style={{ height: '48px' }} focus={true}>
                 <DataText area="name" fontWeight="500">
-                    <Row>
-                        {!below680 && <div style={{ marginRight: '1rem', width: '10px' }}>{index}</div>}
-                        <CustomLink style={{ marginLeft: '16px', whiteSpace: 'nowrap' }} to={'/pool/' + item.id}>
-                            <FormattedName
-                                text={item.name}
-                                maxCharacters={below600 ? 8 : 19}
-                                adjustSize={true}
-                                link={true}
-                            />
-                        </CustomLink>
-                    </Row>
+                 {item.assetAddress && item.assetAddress.slice(0, 6) + '...' + item.assetAddress.slice(38, 42)}
                 </DataText>
                 {!below1080 && (
-                    <DataText area="tvl">{formattedNum(currentTVL / 1e18, true)}</DataText>
+                    <DataText area="tokenClass">{item.tokenClass.toString()}</DataText>
                 )}
                 {!below1080 && (
-                    <DataText area="fee">{item.performanceFee / 100}%</DataText>
+                    <DataText area="price">{formattedNum(item.tokenPrice / 1e18, true)}</DataText>
                 )}
-                <DataText area="price" color="text" fontWeight="500">
-                    {formattedNum(Number(currentPrice.toString()) / 1e18, true)}
+                <DataText area="quantity" color="text" fontWeight="500">
+                    {item.numberOfTokens.toString()} tokens
                 </DataText>
-                {!below1080 && <DataText area="change">{formattedPercent(priceChange)}</DataText>}
-                <DataText area="roi">{formattedPercent(totalReturn)}</DataText>
+                <DataText area="buyer" fontWeight="500">
+                 {item.seller && item.seller.id.slice(0, 6) + '...' + item.seller.id.slice(38, 42)}
+                </DataText>
+                <DataText area="time">{formatTime(item.lastUpdated)}</DataText>
             </DashGrid>
         )
     }
@@ -234,11 +174,9 @@ function RecentlyListedList({ listings, itemMax = 10, useTracked = false }) {
                         area="name"
                         fontWeight="500"
                         onClick={(e) => {
-                            setSortedColumn(SORT_FIELD.NAME)
-                            setSortDirection(sortedColumn !== SORT_FIELD.NAME ? true : !sortDirection)
                         }}
                     >
-                        {below680 ? 'Symbol' : 'Name'} {sortedColumn === SORT_FIELD.NAME ? (!sortDirection ? '↑' : '↓') : ''}
+                        {'Pool Name'}
                     </ClickableText>
                 </Flex>
                 {!below1080 && (
@@ -246,11 +184,9 @@ function RecentlyListedList({ listings, itemMax = 10, useTracked = false }) {
                         <ClickableText
                             area="tvl"
                             onClick={(e) => {
-                                setSortedColumn(SORT_FIELD.TVL)
-                                setSortDirection(sortedColumn !== SORT_FIELD.TVL ? true : !sortDirection)
                             }}
                         >
-                            TVL {sortedColumn === SORT_FIELD.TVL ? (!sortDirection ? '↑' : '↓') : ''}
+                            Token Class
                         </ClickableText>
                     </Flex>
                 )}
@@ -259,14 +195,9 @@ function RecentlyListedList({ listings, itemMax = 10, useTracked = false }) {
                         <ClickableText
                             area="fee"
                             onClick={() => {
-                                setSortedColumn(SORT_FIELD.FEE)
-                                setSortDirection(
-                                    sortedColumn !== (SORT_FIELD.FEE) ? true : !sortDirection
-                                )
                             }}
                         >
-                            Performance Fee
-                            {sortedColumn === (SORT_FIELD.FEE) ? (!sortDirection ? '↑' : '↓') : ''}
+                            Price
                         </ClickableText>
                     </Flex>
                 )}
@@ -274,11 +205,9 @@ function RecentlyListedList({ listings, itemMax = 10, useTracked = false }) {
                     <ClickableText
                         area="price"
                         onClick={(e) => {
-                            setSortedColumn(SORT_FIELD.PRICE)
-                            setSortDirection(sortedColumn !== SORT_FIELD.PRICE ? true : !sortDirection)
                         }}
                     >
-                        Price {sortedColumn === SORT_FIELD.PRICE ? (!sortDirection ? '↑' : '↓') : ''}
+                        Quantity
                     </ClickableText>
                 </Flex>
                 {!below1080 && (
@@ -286,12 +215,9 @@ function RecentlyListedList({ listings, itemMax = 10, useTracked = false }) {
                         <ClickableText
                             area="change"
                             onClick={(e) => {
-                                setSortedColumn(SORT_FIELD.CHANGE)
-                                setSortDirection(sortedColumn !== SORT_FIELD.CHANGE ? true : !sortDirection)
                             }}
                         >
-                            Price Change (24hrs)
-                            {sortedColumn === SORT_FIELD.CHANGE ? (!sortDirection ? '↑' : '↓') : ''}
+                            Seller
                         </ClickableText>
                     </Flex>
                 )}
@@ -299,19 +225,16 @@ function RecentlyListedList({ listings, itemMax = 10, useTracked = false }) {
                     <ClickableText
                         area="roi"
                         onClick={(e) => {
-                            setSortedColumn(SORT_FIELD.ROI)
-                            setSortDirection(sortedColumn !== SORT_FIELD.ROI ? true : !sortDirection)
                         }}
                     >
-                        Total Return
-                        {sortedColumn === SORT_FIELD.ROI ? (!sortDirection ? '↑' : '↓') : ''}
+                        Time
                     </ClickableText>
                 </Flex>
             </DashGrid>
             <Divider />
             <List p={0}>
-                {filteredList &&
-                    filteredList.map((item, index) => {
+                {listings &&
+                    listings.map((item, index) => {
                         return (
                             <div key={index}>
                                 <ListItem key={index} index={(page - 1) * itemMax + index + 1} item={item} />
