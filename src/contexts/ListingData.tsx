@@ -102,7 +102,7 @@ export function useListingData(address: string): Partial<IListingData> {
     }
   }, [data, fetchData, state])
 
-  return data ?? {}
+  return data ?? undefined
 }
 
 async function getListingData(address: string) {

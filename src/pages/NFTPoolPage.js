@@ -27,6 +27,7 @@ import { useSavedNFTPools } from '../contexts/LocalStorage'
 import InvestmentPositionsList from '../components/InvestmentPositionsList'
 import { useAllTokenData } from '../contexts/TokenData'
 import { useListingData } from '../contexts/ListingData'
+import ListingsTable from '../components/ListingsTable'
 
 const DashboardWrapper = styled.div`
   width: 100%;
@@ -215,97 +216,11 @@ function NFTPoolPage({ address, history }) {
                             </span>
                         </RowBetween>
 
-                        <>
-                            {!below1080 && (
-                                <RowFixed>
-                                    <TYPE.main fontSize={'1.125rem'} mr="6px">
-                                        NFT Pool Stats
-                                    </TYPE.main>
-                                </RowFixed>
-                            )}
-                            <PanelWrapper style={{ marginTop: below1080 ? '0' : '1rem' }}>
-                                {below1080 && currentPrice && (
-                                    <Panel>
-                                        <AutoColumn gap="20px">
-                                            <RowBetween>
-                                                <TYPE.main>Price</TYPE.main>
-                                                <div />
-                                            </RowBetween>
-                                            <RowBetween align="flex-end">
-                                                {' '}
-                                                <TYPE.main fontSize={'1.5rem'} lineHeight={1} fontWeight={500}>
-                                                    {formattedNum(Number(currentPrice.toString()) / 1e36, true)}
-                                                </TYPE.main>
-                                                <TYPE.main>{formattedPercent(priceChange)}</TYPE.main>
-                                            </RowBetween>
-                                        </AutoColumn>
-                                    </Panel>
-                                )}
-                                <Panel>
-                                    <AutoColumn gap="20px">
-                                        <RowBetween>
-                                            <TYPE.main>Total Value Locked</TYPE.main>
-                                            <div />
-                                        </RowBetween>
-                                        <RowBetween align="flex-end">
-                                            <TYPE.main fontSize={'1.5rem'} lineHeight={1} fontWeight={500}>
-                                                {formattedNum(Number(currentTVL.toString()) / 1e18, true)}
-                                            </TYPE.main>
-                                            <TYPE.main>{formattedPercent(TVLChange)}</TYPE.main>
-                                        </RowBetween>
-                                    </AutoColumn>
-                                </Panel>
-                                <Panel>
-                                    <AutoColumn gap="20px">
-                                        <RowBetween>
-                                            <TYPE.main>Volume (24hrs)</TYPE.main>
-                                            <div />
-                                        </RowBetween>
-                                        <RowBetween align="flex-end">
-                                            <TYPE.main fontSize={'1.5rem'} lineHeight={1} fontWeight={500}>
-                                                {volume}
-                                            </TYPE.main>
-                                            <TYPE.main>{volumeChange}</TYPE.main>
-                                        </RowBetween>
-                                    </AutoColumn>
-                                </Panel>
-
-                                <Panel>
-                                    <AutoColumn gap="20px">
-                                        <RowBetween>
-                                            <TYPE.main>Max Supply</TYPE.main>
-                                            <div />
-                                        </RowBetween>
-                                        <RowBetween align="flex-end">
-                                            <TYPE.main fontSize={'1.5rem'} lineHeight={1} fontWeight={500}>
-                                                {maxSupply} tokens
-                                            </TYPE.main>
-                                        </RowBetween>
-                                    </AutoColumn>
-                                </Panel>
-                                <Panel
-                                    style={{
-                                        gridColumn: below1080 ? '1' : '2/4',
-                                        gridRow: below1080 ? '' : '1/4',
-                                    }}
-                                >
-                                    <NFTPoolChart address={address} color={backgroundColor} base={Number(currentPrice.toString()) / 1e36} />
-                                </Panel>
-                            </PanelWrapper>
-                        </>
-
                         <RowBetween mt={40} mb={'1rem'}>
-                            <TYPE.main fontSize={'1.125rem'}>Positions</TYPE.main> <div />
+                            <TYPE.main fontSize={'1.125rem'}>Listings</TYPE.main> <div />
                         </RowBetween>
                         <Panel rounded>
-                            {positionAddresses ? <InvestmentPositionsList color={backgroundColor} positions={positionAddresses} balances={positionBalances} /> : <Loader />}
-                        </Panel>
-
-                        <RowBetween mt={40} mb={'1rem'}>
-                            <TYPE.main fontSize={'1.125rem'}>Transactions</TYPE.main> <div />
-                        </RowBetween>
-                        <Panel rounded>
-                            {transactions ? <TxnList color={backgroundColor} transactions={transactions} /> : <Loader />}
+                            {listings ? <ListingsTable listings={listings} newTokenPrice={BigInt(currentPrice) / BigInt(1e18)} /> : <Loader />}
                         </Panel>
                         <>
                             <RowBetween style={{ marginTop: '3rem' }}>

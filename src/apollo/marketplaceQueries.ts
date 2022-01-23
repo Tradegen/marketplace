@@ -63,6 +63,7 @@ const ListingFields = gql`
     tokenClass
     numberOfTokens
     tokenPrice
+    lastUpdated
   }
 `
 
