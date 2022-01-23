@@ -26,6 +26,7 @@ import { formattedNum, formattedPercent, calculateTVL, calculatePreviousDayTVL }
 import { useSavedNFTPools } from '../contexts/LocalStorage'
 import InvestmentPositionsList from '../components/InvestmentPositionsList'
 import { useAllTokenData } from '../contexts/TokenData'
+import { useListingData } from '../contexts/ListingData'
 
 const DashboardWrapper = styled.div`
   width: 100%;
@@ -101,6 +102,9 @@ function NFTPoolPage({ address, history }) {
         totalValueLockedChangeUSD,
         oneDayData
     } = useNFTPoolData(address)
+
+    const listings = useListingData(address)
+    console.log(listings)
 
     useEffect(() => {
         document.querySelector('body').scrollTo(0, 0)
@@ -199,16 +203,12 @@ function NFTPoolPage({ address, history }) {
                                                 <PlusCircle style={{ marginRight: '0.5rem' }} />
                                             </StyledIcon>
                                         </Hover>
-                                    ) : !below1080 ? (
-                                        <StyledIcon>
-                                            <Bookmark style={{ marginRight: '0.5rem', opacity: 0.4 }} />
-                                        </StyledIcon>
                                     ) : (
                                         <></>
                                     )}
-                                    <Link href={"https://app.tradegen.io/#/nftpool/" + address} target="_blank">
+                                    <Link href={"https://info.tradegen.io/nftpool/" + address} target="_blank">
                                         <ButtonDark ml={'.5rem'} mr={below1080 && '.5rem'} color={backgroundColor}>
-                                            Trade
+                                            Charts
                                         </ButtonDark>
                                     </Link>
                                 </RowFixed>

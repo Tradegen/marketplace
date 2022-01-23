@@ -8,6 +8,7 @@ import ReactGA from 'react-ga'
 import App from './App'
 import ApplicationContextProvider from './contexts/Application'
 import GlobalDataContextProvider from './contexts/GlobalData'
+import ListingDataContextProvider from './contexts/ListingData'
 import LocalStorageContextProvider, { Updater as LocalStorageContextUpdater } from './contexts/LocalStorage'
 import PairDataContextProvider, { Updater as PairDataContextUpdater } from './contexts/PairData'
 import TokenDataContextProvider, { Updater as TokenDataContextUpdater } from './contexts/TokenData'
@@ -63,9 +64,11 @@ function ContextProviders({ children }: { children: React.ReactNode }) {
           <PoolDataContextProvider>
             <NFTPoolDataContextProvider>
               <GlobalDataContextProvider>
-                <PairDataContextProvider>
-                  <UserContextProvider>{children}</UserContextProvider>
-                </PairDataContextProvider>
+                <ListingDataContextProvider>
+                  <PairDataContextProvider>
+                    <UserContextProvider>{children}</UserContextProvider>
+                  </PairDataContextProvider>
+                </ListingDataContextProvider>
               </GlobalDataContextProvider>
             </NFTPoolDataContextProvider>
           </PoolDataContextProvider>

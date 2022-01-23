@@ -73,33 +73,15 @@ function App() {
               <Route
                 exacts
                 strict
-                path="/pool/:poolAddress"
-                render={({ match }) => {
-                  if (
-                    isAddress(match.params.poolAddress.toLowerCase())
-                  ) {
-                    return (
-                      <LayoutWrapper savedOpen={savedOpen} setSavedOpen={setSavedOpen}>
-                        <PoolPage address={match.params.poolAddress.toLowerCase()} />
-                      </LayoutWrapper>
-                    )
-                  } else {
-                    return <Redirect to="/dashboard" />
-                  }
-                }}
-              />
-              <Route
-                exacts
-                strict
                 path="/nftpool/:nftPoolAddress"
                 render={({ match }) => {
                   if (
                     isAddress(match.params.nftPoolAddress.toLowerCase())
                   ) {
                     return (
-                      <LayoutWrapper savedOpen={savedOpen} setSavedOpen={setSavedOpen}>
+                      <Center>
                         <NFTPoolPage address={match.params.nftPoolAddress.toLowerCase()} />
-                      </LayoutWrapper>
+                      </Center>
                     )
                   } else {
                     return <Redirect to="/dashboard" />
@@ -110,11 +92,6 @@ function App() {
                 <Center>
                   <GlobalPage />
                 </Center>
-              </Route>
-              <Route path="/pools">
-                <LayoutWrapper savedOpen={savedOpen} setSavedOpen={setSavedOpen}>
-                  <AllPoolsPage />
-                </LayoutWrapper>
               </Route>
               <Route path="/marketplace">
                 <Center>
