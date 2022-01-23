@@ -125,6 +125,8 @@ function TopNFTPoolList({ NFTPools, itemMax = 10, useTracked = false }) {
 
     const allTokens = useAllTokenData();
 
+    console.log(NFTPools)
+
     // sorting
     const [sortDirection, setSortDirection] = useState(true)
     const [sortedColumn, setSortedColumn] = useState(SORT_FIELD.TVL)
@@ -185,11 +187,11 @@ function TopNFTPoolList({ NFTPools, itemMax = 10, useTracked = false }) {
         console.log(priceChange)
 
         let totalReturn;
-        if (!item || !item.tokenPrice) {
+        if (!item || !item.tokenPrice || !item.seedPrice) {
             totalReturn = 0;
         }
         else {
-            totalReturn = 100 * (Number(currentPrice) - 1e18) / 1e18
+            totalReturn = 100 * (Number(currentPrice) - Number(item.seedPrice.toString())) / Number(item.seedPrice.toString())
         }
 
         return (
@@ -216,7 +218,7 @@ function TopNFTPoolList({ NFTPools, itemMax = 10, useTracked = false }) {
                 <DataText area="price" color="text" fontWeight="500">
                     {formattedNum(Number(currentPrice.toString()) / 1e18, true)}
                 </DataText>
-                {!below1080 && <DataText area="change">{formattedPercent(priceChange)}</DataText>}
+                {!below1080 && <DataText area="change">{item.totalSupply.toString()} tokens</DataText>}
                 <DataText area="roi">{formattedPercent(totalReturn)}</DataText>
             </DashGrid>
         )
@@ -287,8 +289,7 @@ function TopNFTPoolList({ NFTPools, itemMax = 10, useTracked = false }) {
                                 setSortDirection(sortedColumn !== SORT_FIELD.CHANGE ? true : !sortDirection)
                             }}
                         >
-                            Price Change (24hrs)
-                            {sortedColumn === SORT_FIELD.CHANGE ? (!sortDirection ? '↑' : '↓') : ''}
+                            Total Supply
                         </ClickableText>
                     </Flex>
                 )}

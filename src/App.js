@@ -116,10 +116,10 @@ function App() {
                   <AllPoolsPage />
                 </LayoutWrapper>
               </Route>
-              <Route path="/nftpools">
-                <LayoutWrapper savedOpen={savedOpen} setSavedOpen={setSavedOpen}>
+              <Route path="/marketplace">
+                <Center>
                   <AllNFTPoolsPage />
-                </LayoutWrapper>
+                </Center>
               </Route>
               <Redirect to="/dashboard" />
             </Switch>
