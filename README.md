@@ -1,3 +1,3 @@
 # Tradegen Marketplace
 
-Marketplace site for the [Tradegen Protocol](https://tradegen.io).
+Marketplace site for the Tradegen Protocol.
